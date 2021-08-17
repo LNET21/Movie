@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Movie.Data;
 using Movie.Models.Entities;
+using Movie.Models.ViewModels;
 
 namespace Movie.Controllers
 {
@@ -23,6 +24,30 @@ namespace Movie.Controllers
         public async Task<IActionResult> Index()
         {
             return View(await db.Movie.ToListAsync());
+        } 
+        
+        public async Task<IActionResult> Index2()
+        {
+            var model = new IndexViewModel2
+            {
+                 Movies = await db.Movie.ToListAsync(),
+                 Genres = await GetGenresAsync()
+            };
+
+            return View(model);
+        }
+
+        private async Task<IEnumerable<SelectListItem>> GetGenresAsync()
+        {
+            return await db.Movie
+                        .Select(m => m.Genre)
+                        .Distinct()
+                        .Select(g => new SelectListItem
+                        {
+                            Text = g.ToString(),
+                            Value = g.ToString()
+                        })
+                        .ToListAsync();
         }
 
         public async Task<IActionResult> Filter(string title, int? genre)
@@ -37,6 +62,26 @@ namespace Movie.Controllers
                             model.Where(m => (int)m.Genre == genre);
 
             return View(nameof(Index), await model.ToListAsync());
+        } 
+        
+        public async Task<IActionResult> Filter2(IndexViewModel2  viewModel)
+        {
+
+            var movies = string.IsNullOrWhiteSpace(viewModel.Title) ?
+                            db.Movie :
+                            db.Movie.Where(m => m.Title.StartsWith(viewModel.Title));
+
+            movies = viewModel.Genre == null ?
+                            movies :
+                            movies.Where(m => m.Genre == viewModel.Genre);
+
+            var model = new IndexViewModel2
+            {
+                Movies = await movies.ToListAsync(),
+                Genres = await GetGenresAsync()
+            };
+
+            return View(nameof(Index2), model);
         }
 
 

@@ -1,21 +1,21 @@
-﻿@model IEnumerable<Movie.Models.Entities.MovieModel>
+﻿@model IndexViewModel2
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Index2";
 }
 
-<h1>Index - Enum</h1>
+<h1>Index2 - ViewModel</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
 
 
-<form asp-action="Filter">
+<form asp-action="Filter2">
     <div class="input-group mb-3">
-        <input type="text" class="form-control" name="title" placeholder="Search on title..." />
+        <input type="text" class="form-control" asp-for="Title" placeholder="Search on title..." />
         <div class="input-group-append">
-            <select name="genre" asp-items="@Html.GetEnumSelectList<Genre>()" class="form-control">
+            <select asp-for="Genre" asp-items="@Model.Genres" class="form-control">
                 <option selected="selected" value="">Please select</option>
             </select>
         </div>
@@ -25,6 +25,4 @@
     </div>
 </form>
 
-<partial name="MoviePartial" />
-
-
+<partial name="MoviePartial" model="@Model.Movies" />
