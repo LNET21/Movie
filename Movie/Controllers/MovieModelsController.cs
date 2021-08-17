@@ -78,7 +78,7 @@ namespace Movie.Controllers
         
         public async Task<IActionResult> Filter2(IndexViewModel2  viewModel)
         {
-
+            
             var movies = string.IsNullOrWhiteSpace(viewModel.Title) ?
                             db.Movie :
                             db.Movie.Where(m => m.Title.StartsWith(viewModel.Title));

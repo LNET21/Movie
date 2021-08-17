@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Movie.Data;
 using Movie.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Movie
 {
@@ -31,7 +32,8 @@ namespace Movie
             services.AddScoped<IGenreSelectListService, GenreSelectListService>();
 
             services.AddDbContext<MovieContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("MovieContext")));
+                    options.UseSqlServer(Configuration.GetConnectionString("MovieContext"))
+                    .LogTo(Console.WriteLine, LogLevel.Information));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
