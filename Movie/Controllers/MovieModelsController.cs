@@ -35,6 +35,18 @@ namespace Movie.Controllers
             };
 
             return View(model);
+        }  
+        
+        public async Task<IActionResult> Index3()
+        {
+            var movies = await db.Movie.ToListAsync();
+
+            var model = new IndexViewModel3
+            {
+                 Movies = movies
+            };
+
+            return View(model);
         }
 
         private async Task<IEnumerable<SelectListItem>> GetGenresAsync()
@@ -82,6 +94,25 @@ namespace Movie.Controllers
             };
 
             return View(nameof(Index2), model);
+        } 
+        
+        public async Task<IActionResult> Filter3(IndexViewModel3  viewModel)
+        {
+
+            var movies = string.IsNullOrWhiteSpace(viewModel.Title) ?
+                            db.Movie :
+                            db.Movie.Where(m => m.Title.StartsWith(viewModel.Title));
+
+            movies = viewModel.Genre == null ?
+                            movies :
+                            movies.Where(m => m.Genre == viewModel.Genre);
+
+            var model = new IndexViewModel3
+            {
+                Movies = await movies.ToListAsync()
+            };
+
+            return View(nameof(Index3), model);
         }
 
 
