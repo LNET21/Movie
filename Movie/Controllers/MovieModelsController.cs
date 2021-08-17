@@ -12,18 +12,35 @@ namespace Movie.Controllers
 {
     public class MovieModelsController : Controller
     {
-        private readonly MovieContext _context;
+        private readonly MovieContext db;
 
         public MovieModelsController(MovieContext context)
         {
-            _context = context;
+            db = context;
         }
 
         // GET: MovieModels
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Movie.ToListAsync());
+            return View(await db.Movie.ToListAsync());
         }
+
+        public async Task<IActionResult> Filter(string title, int? genre)
+        {
+
+            var model = string.IsNullOrWhiteSpace(title) ?
+                            db.Movie :
+                            db.Movie.Where(m => m.Title.StartsWith(title));
+
+            model = genre == null ?
+                            model :
+                            model.Where(m => (int)m.Genre == genre);
+
+            return View(nameof(Index), await model.ToListAsync());
+        }
+
+
+
 
         // GET: MovieModels/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -33,7 +50,7 @@ namespace Movie.Controllers
                 return NotFound();
             }
 
-            var movieModel = await _context.Movie
+            var movieModel = await db.Movie
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (movieModel == null)
             {
@@ -58,8 +75,8 @@ namespace Movie.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(movieModel);
-                await _context.SaveChangesAsync();
+                db.Add(movieModel);
+                await db.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(movieModel);
@@ -73,7 +90,7 @@ namespace Movie.Controllers
                 return NotFound();
             }
 
-            var movieModel = await _context.Movie.FindAsync(id);
+            var movieModel = await db.Movie.FindAsync(id);
             if (movieModel == null)
             {
                 return NotFound();
@@ -97,8 +114,8 @@ namespace Movie.Controllers
             {
                 try
                 {
-                    _context.Update(movieModel);
-                    await _context.SaveChangesAsync();
+                    db.Update(movieModel);
+                    await db.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -124,7 +141,7 @@ namespace Movie.Controllers
                 return NotFound();
             }
 
-            var movieModel = await _context.Movie
+            var movieModel = await db.Movie
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (movieModel == null)
             {
@@ -139,15 +156,15 @@ namespace Movie.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var movieModel = await _context.Movie.FindAsync(id);
-            _context.Movie.Remove(movieModel);
-            await _context.SaveChangesAsync();
+            var movieModel = await db.Movie.FindAsync(id);
+            db.Movie.Remove(movieModel);
+            await db.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool MovieModelExists(int id)
         {
-            return _context.Movie.Any(e => e.Id == id);
+            return db.Movie.Any(e => e.Id == id);
         }
     }
 }
